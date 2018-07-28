@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from config import settings
 
 
-class AppService(object):
+class FeedService(object):
 
     @classmethod
     def get_content_from_url(cls, url=None):
@@ -63,4 +63,4 @@ class AppService(object):
                 ])))
             idx += 1
 
-        return json.dumps(feed)
+        return feed
