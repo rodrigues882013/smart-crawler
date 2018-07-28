@@ -5,11 +5,11 @@ import redis
 
 from functools import wraps
 from flask import request, jsonify, abort, make_response
-from api.user.service import UserService as service
+from feed_api.user.service import UserService as service
 
 from jwt import exceptions
 
-redis_db = redis.Redis(host='46.101.81.106', port=6379, db=0)
+redis_db = redis.Redis(host='localhost', port=6379, db=0)
 
 
 def save_token(login, token):
@@ -19,7 +19,7 @@ def save_token(login, token):
 
 def get_token(user, token):
     stored_token = redis_db.get(user.get('login'))
-    return token == stored_token
+    return token == stored_token.decode("utf-8")
 
 
 def check_auth(request):
@@ -40,7 +40,7 @@ def check_auth(request):
                        algorithm='HS256')
     save_token(user.get('login'), token.decode('utf-8'))
 
-    return dict(authorized=True, token=str.format('Bearer {0}', token.decode('utf-8')))
+    return dict(authorized=True, token=str.format('Basic {0}', token.decode('utf-8')))
 
 
 def check_user(request):

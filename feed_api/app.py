@@ -1,10 +1,9 @@
 from flask import Flask
 
-from .auth import auth_bp
-from .config import DefaultConfig
 from .extensions import db
-from .feed import feed_bp
 from .user import user_bp
+from .auth import auth_bp
+from .feed import feed_bp
 
 __all__ = ['create_app', 'app']
 
@@ -13,7 +12,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 
 
 def create_app():
-    __load_config()
     __register_blueprint()
     __configure_extensions()
     __init_db()
@@ -34,7 +32,3 @@ def __configure_extensions():
 def __init_db():
     with app.app_context():
         db.create_all()
-
-
-def __load_config():
-    app.config.from_object(DefaultConfig)

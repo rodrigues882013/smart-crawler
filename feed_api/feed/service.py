@@ -4,7 +4,7 @@ import re
 import requests as http
 from bs4 import BeautifulSoup
 
-from config import settings
+# from config import settings
 
 
 class FeedService(object):
@@ -12,7 +12,7 @@ class FeedService(object):
     @classmethod
     def get_content_from_url(cls, url=None):
         if url is None:
-            url = settings['application']['feed_url']
+            raise AttributeError('url is null')
 
         resp = http.get(url)
 

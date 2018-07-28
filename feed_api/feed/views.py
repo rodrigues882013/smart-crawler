@@ -1,5 +1,5 @@
 from flask import request, jsonify, Blueprint
-from api.auth.service import requires_auth
+from feed_api.auth.service import requires_auth
 from flask_restful import Resource, Api
 from .service import FeedService as service
 

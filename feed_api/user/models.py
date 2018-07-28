@@ -1,4 +1,4 @@
-from api.app import db
+from feed_api.app import db
 
 
 class User(db.Model):

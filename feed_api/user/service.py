@@ -1,6 +1,6 @@
 import hashlib
-from api.extensions import db
-from api.user.models import User
+from feed_api.extensions import db
+from feed_api.user.models import User
 from flask import abort
 
 
