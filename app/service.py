@@ -1,9 +1,10 @@
 import json
+import re
 
 import requests as http
-from config import settings
-from lxml import etree
 from bs4 import BeautifulSoup
+
+from config import settings
 
 
 class AppService(object):
@@ -19,30 +20,47 @@ class AppService(object):
             return resp.content
 
     @classmethod
-    def build_xml(cls, content):
-        try:
-            return etree.fromstring(content)
-        except Exception as e:
-            pass
+    def generate_text(cls, text_array):
+        text = ''
+        for x in text_array:
+            text += ' ' + x
+
+        return text
 
     @classmethod
-    def parse_content(cls, content, content_type='xml'):
-        if content_type == 'xml':
-            return cls.build_xml(content)
+    def get_content(cls, content, pattern, position):
+        matches = re.finditer(pattern, str(content), re.MULTILINE)
+
+        idx = 0
+        for match in matches:
+            if idx == position:
+                return match.groups()[0]
+            idx += 1
+
+    @classmethod
+    def get_link(cls, content, position):
+        return cls.get_content(content, r'<link>(.*?)</link>', position)
+
+    @classmethod
+    def get_title(cls, content, position):
+        return cls.get_content(content, r'<title><!\[CDATA\[(.*?)\]\]></title>', position)
 
     @classmethod
     def xml_to_json(cls, content):
         soup = BeautifulSoup(content, 'lxml')
         feed = dict(feed=list())
+
+        idx = 0
         for i in soup.findAll('item'):
-            feed['feed'].append(
-                dict(
-                    title=i.title.find(text=True),
-                    link=i.link.find(text=True),
-                    description=[
-                        dict(type='text', content=list(map(lambda x:  ''.join(x.findAll(text=True)), i.description.findAll('p')))),
-                        dict(type='link', content=list(map(lambda x: x.get('href'), i.description.findAll('a')))),
-                        dict(type='image', content=list(map(lambda x: x.get('src'), i.description.findAll('img'))))
-            ]))
+            feed['feed'].append(dict(item=dict(
+                title=cls.get_title(content, idx),
+                link=cls.get_link(content, idx),
+                description=[
+                    dict(type='text', content=cls.generate_text(list(map(lambda x: ''.join(x.findAll(text=True)),
+                                                                         i.description.findAll('p'))))),
+                    dict(type='link', content=list(map(lambda x: x.get('href'), i.description.findAll('a')))),
+                    dict(type='image', content=list(map(lambda x: x.get('src'), i.description.findAll('img'))))
+                ])))
+            idx += 1
 
         return json.dumps(feed)
