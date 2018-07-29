@@ -1,4 +1,12 @@
 version: '3'
+
+volumes:
+  dbdata:
+
+networks:
+  db_nw:
+    driver: bridge
+
 services:
   web:
     build: .
@@ -6,5 +14,25 @@ services:
      - "8000:8000"
     volumes:
      - .:/usr/src/application
+    depends_on:
+     - db
+     - redis
+
+    environment:
+     - POSTGRES_DATABASE=db
+     - POSTGRES_USER=flask
+     - POSTGRES_PASSWORD=flask=
   redis:
     image: "redis:alpine"
+
+  database:
+    hostname: "database"
+    image: "postgres:9.6.5"
+    environment:
+     - POSTGRES_DATABASE=db
+     - POSTGRES_USER=flask
+     - POSTGRES_PASSWORD=flask
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+    networks:
+      - db_nw

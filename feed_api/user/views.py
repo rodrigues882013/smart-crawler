@@ -17,22 +17,5 @@ class User(Resource):
     def put(self, id):
         return jsonify(service.update(request, id)), 200
 
-    @requires_auth
-    def delete(self, id):
-        service.delete(id)
-        return jsonify(dict(result="User deleted")), 204
-
-
-class Users(Resource):
-
-    @requires_auth
-    def get(self):
-        return jsonify(service.find_all(1))
-
-    @requires_auth
-    def post(self):
-        return jsonify(service.create(request))
-
 
 api.add_resource(User, '/users/<int:id>')
-api.add_resource(Users, '/users')

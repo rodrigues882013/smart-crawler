@@ -1,5 +1,6 @@
 from flask import Flask
 
+from .config import DefaultConfig
 from .extensions import db
 from .user import user_bp
 from .auth import auth_bp
@@ -8,14 +9,19 @@ from .feed import feed_bp
 __all__ = ['create_app', 'app']
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 
 
 def create_app():
+    __configure_app()
     __register_blueprint()
     __configure_extensions()
     __init_db()
     return app
+
+
+def __configure_app():
+    app.config.from_object(DefaultConfig)
 
 
 def __register_blueprint():
