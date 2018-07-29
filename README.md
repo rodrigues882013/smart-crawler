@@ -1,9 +1,9 @@
 # Considerações
 
-O desafio foi feito em duas branchs, em uma está simplesmente a tarefa de conversão parse do xml (master), já a outra branch reune
+O desafio foi feito em duas branchs, em uma está simplesmente a tarefa de parse do xml (master), já a outra branch reune
 as features de extras (webservice). 
 
-Para o extra foi implementado um microserviço em flask, esse texto exemplifica como executar e testar o webservice  
+Esse texto mostra como executar e testar a aplicação simples.  
 
 
 ## Requerimentos
