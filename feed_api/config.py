@@ -22,27 +22,24 @@ class BaseConfig(object):
     SECRET_KEY = 'secret key'
 
     LOG_FOLDER = os.path.join(INSTANCE_FOLDER_PATH, 'logs')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 
 
 class DefaultConfig(BaseConfig):
 
     DEBUG = True
-
-    user = os.environ['POSTGRES_USER']
-    pwd = os.environ['POSTGRES_PASSWORD']
-    db = os.environ['POSTGRES_DATABASE']
-    host = 'database'
-    port = '5432'
-
-    # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
     SQLALCHEMY_ECHO = False
-    # QLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be
-    # disabled by default in the future.
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    # SQLITE for prototyping.
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + INSTANCE_FOLDER_PATH + '/db.sqlite'
-    # MYSQL for production.
-    SQLALCHEMY_DATABASE_URI = 'postgres://%s:%s@%s:%s/%s' % (user, pwd, host, port, db)
+
+    if 'DEV' not in os.environ:
+        user = os.environ.get('POSTGRES_USER')
+        pwd = os.environ.get('POSTGRES_PASSWORD')
+        schema = os.environ.get('POSTGRES_DB')
+        host = os.environ.get('POSTGRES_HOST')
+        port = os.environ.get('POSTGRES_PORT')
+        SQLALCHEMY_DATABASE_URI = 'postgres://%s:%s@%s:%s/%s' % (user, pwd, host, port, schema)
+
+    FEED_URL = os.environ.get('FEED_URL')
 
 
 class TestConfig(BaseConfig):

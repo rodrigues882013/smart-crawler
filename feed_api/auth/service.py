@@ -1,28 +1,41 @@
+import os
 import datetime
 import hashlib
 import jwt
 import redis
 
 from functools import wraps
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response, current_app as app
+
+from feed_api.decorators import logger_gunicorn
 from feed_api.user.service import UserService as service
 
 from jwt import exceptions
 
-redis_db = redis.Redis(host='redis', port=6379, db=0)
+redis_db = redis.Redis(host=os.environ.get('REDIS_HOST'), port=os.environ.get('REDIS_PORT'), db=os.environ.get('REDIS_DB'))
 
 
+@logger_gunicorn
 def save_token(login, token):
+    app.logger.info('Saving token')
     redis_db.ttl(86400)  # Ttl is valid for one day
     redis_db.set(login, token)
 
 
+@logger_gunicorn
 def get_token(user, token):
+    app.logger.info('Retrieve token')
     stored_token = redis_db.get(user.get('login'))
+
+    if stored_token is None:
+        return False
+
     return token == stored_token.decode("utf-8")
 
 
+@logger_gunicorn
 def check_auth(request):
+    app.logger.info('Checking if request is authenticated')
     auth = request.get_json()
 
     user = service.find_by_login(auth.get('login'))
@@ -43,15 +56,19 @@ def check_auth(request):
     return dict(authorized=True, token=str.format('Basic {0}', token.decode('utf-8')))
 
 
+@logger_gunicorn
 def check_user(request):
     token = request.headers.get('Authorization')
 
 
+@logger_gunicorn
 def create_user(register_request):
     return service.create(register_request)
 
 
+@logger_gunicorn
 def valid_token(request):
+    app.logger.info('Start token validation')
     token = request.headers.get('Authorization')
 
     if token is None:
@@ -80,6 +97,7 @@ def valid_token(request):
     return get_token(payload.get('user'), token[1])
 
 
+@logger_gunicorn
 def unauthorized():
     """Sends a 401 response that enables basic auth"""
     return make_response(jsonify(dict(reason="Unauthorized")), 401)

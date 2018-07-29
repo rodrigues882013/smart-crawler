@@ -1,8 +1,8 @@
-import json
 import re
 
 import requests as http
 from bs4 import BeautifulSoup
+
 
 # from config import settings
 

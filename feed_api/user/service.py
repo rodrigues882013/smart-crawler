@@ -1,13 +1,18 @@
 import hashlib
+from feed_api.decorators import logger_gunicorn
 from feed_api.extensions import db
 from feed_api.user.models import User
-from flask import abort
+from flask import abort, current_app as app
+
 
 
 class UserService:
 
     @classmethod
+    @logger_gunicorn
     def create(cls, request):
+        app.logger.info('Creating user')
+
         user_dto = request.get_json()
         first_name = user_dto.get('first_name')
         last_name = user_dto.get('last_name')
@@ -26,23 +31,31 @@ class UserService:
         # if cls.find_by_login(login):
         #     abort(412)
 
-        user = User(first_name,
-                    last_name,
-                    email,
-                    login,
-                    hashlib.sha224(password.encode('utf-8')).hexdigest())
+        try:
+            user = User(first_name,
+                        last_name,
+                        email,
+                        login,
+                        hashlib.sha224(password.encode('utf-8')).hexdigest())
 
-        db.session.add(user)
-        db.session.commit()
+            db.session.add(user)
+            db.session.commit()
 
-        return dict(id=user.id,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    email=user.email,
-                    login=user.login)
+            return dict(id=user.id,
+                        first_name=user.first_name,
+                        last_name=user.last_name,
+                        email=user.email,
+                        login=user.login)
+
+        except Exception as e:
+            app.logger.error("Error: ", e)
+            db.session.rollback()
+            abort(400)
 
     @staticmethod
+    @logger_gunicorn
     def find_all(page=1):
+        app.logger.info('Finding all users')
         return [dict(id=u.id,
                      first_name=u.first_name,
                      last_name=u.last_name,
@@ -52,8 +65,9 @@ class UserService:
                      ) for u in User.query.paginate(page, 10).items]
 
     @staticmethod
+    @logger_gunicorn
     def update(request, id):
-
+        app.logger.info('Update user with id: %s', id)
         user_dto = request.get_json()
         first_name = user_dto.get('first_name')
         last_name = user_dto.get('last_name')
@@ -90,16 +104,9 @@ class UserService:
                     email=user.email)
 
     @staticmethod
-    def delete(id):
-
-        if not id:
-            abort(400)
-
-        User.query.filter(User.id == id).delete()
-        db.session.commit()
-
-    @staticmethod
+    @logger_gunicorn
     def find_one(id):
+        app.logger.info('Find user with id: %s', id)
         u = User.query.filter_by(id=id).first()
 
         if not u:
@@ -113,7 +120,9 @@ class UserService:
                     email=u.email)
     
     @classmethod
+    @logger_gunicorn
     def find_by_login(cls, login):
+        app.logger.info('Finding user with login: %s', login)
         u = User.query.filter_by(login=login).first()
 
         if not u:

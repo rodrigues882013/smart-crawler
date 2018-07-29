@@ -1,3 +1,6 @@
+import logging
+import os
+
 from flask import Flask
 
 from .config import DefaultConfig
@@ -12,16 +15,20 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 
 
-def create_app():
-    __configure_app()
+def create_app(config=None):
+    __configure_app(config)
     __register_blueprint()
     __configure_extensions()
     __init_db()
     return app
 
 
-def __configure_app():
-    app.config.from_object(DefaultConfig)
+def __configure_app(config=None):
+
+    if config:
+        app.config.from_object(config)
+    else:
+        app.config.from_object(DefaultConfig)
 
 
 def __register_blueprint():
