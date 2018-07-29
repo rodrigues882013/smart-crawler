@@ -67,7 +67,7 @@ class AppTest(unittest.TestCase):
         feed = '{"feed": [{"item": {"title": "Ford Ka e VW Gol automáticos", "link": "google.com.br", "description": [{' \
                '"type": "text", "content": " No programa DRIVE dessa semanaClick aqui "}, {"type": "link", "content": [' \
                '"google.com.br"]}, {"type": "image", "content": ["image.jpg"]}]}}]}'
-        self.assertEqual(json.dumps(AppService.xml_to_json(xml), ensure_ascii=False), feed)
+        self.assertEqual(AppService.xml_to_json(xml), feed)
 
 
 if __name__ == '__main__':

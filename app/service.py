@@ -70,4 +70,4 @@ class AppService(object):
                 ])))
             idx += 1
 
-        return json.dumps(feed)
+        return json.dumps(feed, ensure_ascii=False)
