@@ -9,10 +9,6 @@ Para o extra foi implementado um microserviço em flask, esse texto exemplifica 
 ## Requerimentos
 
     python 3.5
-    docker
-    
-    //Opcional
-    docker-composer
 
 ## Instalação
 Primeiro crie um ambiente virtual e ative-o
